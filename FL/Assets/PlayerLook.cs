@@ -21,6 +21,13 @@ public class PlayerLook : MonoBehaviour
     public float swayAmount = 5f;
     public float swaySpeed = 5f;
 
+    [Header("Crosshair Settings")]
+    public RectTransform crosshair;
+    public float crosshairOffset = 40f;
+    public float crosshairMoveSpeed = 5f;
+
+    private Vector2 crosshairStartPosition;
+
     public Transform playerBody;
 
     private float xRotation;
@@ -32,6 +39,11 @@ public class PlayerLook : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (crosshair != null)
+        {
+            crosshairStartPosition = crosshair.anchoredPosition;
+        }
     }
 
     void Update()
@@ -93,5 +105,19 @@ public class PlayerLook : MonoBehaviour
             0f,
             currentSway
         );
+
+        // Move crosshair with shoulder switching
+        if (crosshair != null)
+        {
+            Vector2 targetCrosshairPosition = crosshairStartPosition;
+
+            targetCrosshairPosition.x += -currentSide * crosshairOffset;
+
+            crosshair.anchoredPosition = Vector2.Lerp(
+                crosshair.anchoredPosition,
+                targetCrosshairPosition,
+                Time.deltaTime * crosshairMoveSpeed
+            );
+        }
     }
 }

@@ -14,6 +14,13 @@ public class GunController : MonoBehaviour
     public float maxRange = 100f;
     public Camera playerCamera;
 
+    [Header("Bullet Casings")]
+    public GameObject casingPrefab;
+    public Transform casingEjectPoint;
+
+    public float casingEjectForce = 3f;
+    public float casingUpForce = 1.5f;
+    public float casingTorque = 5f;
 
     [Header("Bullet")]
     public GameObject bulletPrefab;
@@ -60,28 +67,45 @@ public class GunController : MonoBehaviour
     {
         currentAmmo--;
 
-        // Get the center of the camera
+        // Ray from exact center of screen
         Ray ray = playerCamera.ViewportPointToRay(
-            new Vector3(0.5f, 0.5f, 0)
+            new Vector3(0.5f, 0.5f, 0f)
         );
 
-        // Apply random bullet spread
+        // Apply spread
         float spreadX = Random.Range(-spread, spread);
         float spreadY = Random.Range(-spread, spread);
 
         ray.direction = Quaternion.Euler(
-            spreadY, spreadX, 0
+            spreadY, spreadX, 0f
         ) * ray.direction;
 
-        // Check if bullet hits something within range
+        // Find the point the bullet should travel toward
+        Vector3 targetPoint;
+
         RaycastHit hit;
 
-        GameObject bullet = Instantiate(
-    bulletPrefab,
-    bulletSpawnPoint.position,
-    Quaternion.LookRotation(ray.direction)
-);
+        if (Physics.Raycast(ray, out hit, maxRange))
+        {
+            targetPoint = hit.point;
+        }
+        else
+        {
+            targetPoint = ray.origin + ray.direction * maxRange;
+        }
 
+        // Calculate direction from gun to screen target
+        Vector3 shootDirection =
+            (targetPoint - bulletSpawnPoint.position).normalized;
+
+        // Spawn bullet facing target
+        GameObject bullet = Instantiate(
+            bulletPrefab,
+            bulletSpawnPoint.position,
+            Quaternion.LookRotation(shootDirection)
+        );
+
+        // Set bullet range
         Bullet bulletScript = bullet.GetComponent<Bullet>();
 
         if (bulletScript != null)
@@ -89,16 +113,39 @@ public class GunController : MonoBehaviour
             bulletScript.maxRange = maxRange;
         }
 
-        if (Physics.Raycast(ray, out hit, maxRange))
-        {
-            Debug.Log("Hit: " + hit.collider.name);
-        }
-
         Debug.Log("Ammo: " + currentAmmo + "/" + magazineSize);
 
         if (currentAmmo <= 0)
         {
             StartCoroutine(Reload());
+        }
+    }
+
+    void EjectCasing()
+    {
+        if (casingPrefab == null || casingEjectPoint == null)
+            return;
+
+        GameObject casing = Instantiate(
+            casingPrefab,
+            casingEjectPoint.position,
+            casingEjectPoint.rotation
+        );
+
+        Rigidbody rb = casing.GetComponent<Rigidbody>();
+
+        if (rb != null)
+        {
+            Vector3 ejectDirection =
+                casingEjectPoint.right * casingEjectForce +
+                casingEjectPoint.up * casingUpForce;
+
+            rb.AddForce(ejectDirection, ForceMode.Impulse);
+
+            rb.AddTorque(
+                Random.insideUnitSphere * casingTorque,
+                ForceMode.Impulse
+            );
         }
     }
 
