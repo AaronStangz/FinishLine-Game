@@ -17,7 +17,6 @@ public class GunController : MonoBehaviour
     [Header("Bullet Casings")]
     public GameObject casingPrefab;
     public Transform casingEjectPoint;
-
     public float casingEjectForce = 3f;
     public float casingUpForce = 1.5f;
     public float casingTorque = 5f;
@@ -67,12 +66,14 @@ public class GunController : MonoBehaviour
     {
         currentAmmo--;
 
-        // Ray from exact center of screen
+        // Eject casing when shooting
+        EjectCasing();
+
+        // Ray from center of screen
         Ray ray = playerCamera.ViewportPointToRay(
             new Vector3(0.5f, 0.5f, 0f)
         );
 
-        // Apply spread
         float spreadX = Random.Range(-spread, spread);
         float spreadY = Random.Range(-spread, spread);
 
@@ -80,9 +81,7 @@ public class GunController : MonoBehaviour
             spreadY, spreadX, 0f
         ) * ray.direction;
 
-        // Find the point the bullet should travel toward
         Vector3 targetPoint;
-
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, maxRange))
@@ -94,18 +93,15 @@ public class GunController : MonoBehaviour
             targetPoint = ray.origin + ray.direction * maxRange;
         }
 
-        // Calculate direction from gun to screen target
         Vector3 shootDirection =
             (targetPoint - bulletSpawnPoint.position).normalized;
 
-        // Spawn bullet facing target
         GameObject bullet = Instantiate(
             bulletPrefab,
             bulletSpawnPoint.position,
             Quaternion.LookRotation(shootDirection)
         );
 
-        // Set bullet range
         Bullet bulletScript = bullet.GetComponent<Bullet>();
 
         if (bulletScript != null)
