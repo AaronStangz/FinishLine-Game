@@ -13,6 +13,11 @@ public class GunController : MonoBehaviour
     public float fireRate = 5f;
     public float maxRange = 100f;
     public Camera playerCamera;
+    public LayerMask hitLayers = ~0;
+
+    [Header("Accuracy")]
+    public float spread = 0.3f;
+    public bool useSpread = true;
 
     [Header("Bullet Casings")]
     public GameObject casingPrefab;
@@ -24,10 +29,12 @@ public class GunController : MonoBehaviour
     [Header("Bullet")]
     public GameObject bulletPrefab;
     public Transform bulletSpawnPoint;
-    public float spread = 2f;
+
+    [Header("Debug")]
+    public bool showAimLine = true;
 
     private float nextFireTime;
-    private bool isReloading = false;
+    private bool isReloading;
 
     void Start()
     {
@@ -64,38 +71,56 @@ public class GunController : MonoBehaviour
 
     void Shoot()
     {
+        if (playerCamera == null || bulletSpawnPoint == null)
+            return;
+
         currentAmmo--;
 
-        // Eject casing when shooting
         EjectCasing();
 
-        // Ray from center of screen
-        Ray ray = playerCamera.ViewportPointToRay(
+        // Get the exact center of the screen.
+        Ray aimRay = playerCamera.ViewportPointToRay(
             new Vector3(0.5f, 0.5f, 0f)
         );
 
-        float spreadX = Random.Range(-spread, spread);
-        float spreadY = Random.Range(-spread, spread);
-
-        ray.direction = Quaternion.Euler(
-            spreadY, spreadX, 0f
-        ) * ray.direction;
-
         Vector3 targetPoint;
-        RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, maxRange))
+        // Find what the camera is aiming at.
+        if (Physics.Raycast(
+            aimRay,
+            out RaycastHit cameraHit,
+            maxRange,
+            hitLayers,
+            QueryTriggerInteraction.Ignore))
         {
-            targetPoint = hit.point;
+            targetPoint = cameraHit.point;
         }
         else
         {
-            targetPoint = ray.origin + ray.direction * maxRange;
+            targetPoint = aimRay.origin + aimRay.direction * maxRange;
         }
 
+        // Calculate direction from the actual gun barrel.
         Vector3 shootDirection =
             (targetPoint - bulletSpawnPoint.position).normalized;
 
+        // Apply small bullet spread.
+        if (useSpread && spread > 0f)
+        {
+            Vector2 randomSpread = Random.insideUnitCircle * spread;
+
+            shootDirection = Quaternion.AngleAxis(
+                randomSpread.x, playerCamera.transform.up
+            ) * shootDirection;
+
+            shootDirection = Quaternion.AngleAxis(
+                -randomSpread.y, playerCamera.transform.right
+            ) * shootDirection;
+
+            shootDirection.Normalize();
+        }
+
+        // Spawn bullet facing the target.
         GameObject bullet = Instantiate(
             bulletPrefab,
             bulletSpawnPoint.position,
@@ -109,12 +134,20 @@ public class GunController : MonoBehaviour
             bulletScript.maxRange = maxRange;
         }
 
+        if (showAimLine)
+        {
+            Debug.DrawRay(
+                bulletSpawnPoint.position,
+                shootDirection * maxRange,
+                Color.red,
+                1f
+            );
+        }
+
         Debug.Log("Ammo: " + currentAmmo + "/" + magazineSize);
 
         if (currentAmmo <= 0)
-        {
             StartCoroutine(Reload());
-        }
     }
 
     void EjectCasing()
