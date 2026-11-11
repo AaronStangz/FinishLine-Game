@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -12,9 +13,13 @@ public class PlayerInteract : MonoBehaviour
     public Key interactKey = Key.E;
     public LayerMask interactLayers = ~0;
 
+    public GameObject[] Note;
+    public Transform NoteParent;
+
     MainManager IM;
     public GameObject mainManager;
     public GameObject[] hand;
+    public GameObject[] handBar;
 
     private void Start()
     {
@@ -49,7 +54,10 @@ public class PlayerInteract : MonoBehaviour
                 if (mainManager != null && IM.Cash > 75)
                 {
                     IM.Cash -= 75;
-                    hand[1].gameObject.SetActive(true);
+                    hand[0].gameObject.SetActive(true);
+                    handBar[0].gameObject.SetActive(true);
+                    Transform parent = NoteParent != null ? NoteParent : transform;
+                    Instantiate(Note[0], NoteParent);
 
                 }
             }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BuyPistol : MonoBehaviour
 {
-
+    public GameObject holo;
 
 
     void Start()
@@ -12,7 +12,7 @@ public class BuyPistol : MonoBehaviour
     }
 
     // Update is called once per frame
-    public void bpistol()
+    public void Buy()
     {
 
     }

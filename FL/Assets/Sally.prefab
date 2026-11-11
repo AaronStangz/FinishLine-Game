@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 4459665417087496799}
   - component: {fileID: 3359899550354158570}
   - component: {fileID: 5281455598843111006}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Image (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -200,7 +200,7 @@ GameObject:
   - component: {fileID: 2763587206191953332}
   - component: {fileID: 3473024810252697414}
   - component: {fileID: 632824014532801966}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -277,7 +277,7 @@ GameObject:
   - component: {fileID: 2502711566280656971}
   - component: {fileID: 5579255108723934260}
   - component: {fileID: 7769765637521220687}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -366,7 +366,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
 --- !u!114 &7769765637521220687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -392,7 +392,7 @@ GameObject:
   - component: {fileID: 7175607936278818219}
   - component: {fileID: 4496360485679129235}
   - component: {fileID: 4601187074714542881}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Background (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -467,7 +467,7 @@ GameObject:
   - component: {fileID: 4583294589279993180}
   - component: {fileID: 7129507738626827602}
   - component: {fileID: 6822023753791594209}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Background (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -541,7 +541,7 @@ GameObject:
   m_Component:
   - component: {fileID: 452903065782482481}
   - component: {fileID: 6390140667685043616}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Health
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -726,7 +726,7 @@ GameObject:
   - component: {fileID: 6580678353734494169}
   - component: {fileID: 3068549467863305389}
   - component: {fileID: 7964104426415640673}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Image (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -801,7 +801,7 @@ GameObject:
   - component: {fileID: 7750940008730662420}
   - component: {fileID: 2324060254427840779}
   - component: {fileID: 21915784382192609}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Image (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -874,7 +874,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2136777903407193225}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -911,7 +911,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7261218226227881231}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Fill Area
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -947,7 +947,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4001366324254879253}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Holo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1100,7 +1100,7 @@ GameObject:
   - component: {fileID: 3964295671571547610}
   - component: {fileID: 4945417860897089083}
   - component: {fileID: 2826284223353758062}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Fill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1175,7 +1175,7 @@ GameObject:
   - component: {fileID: 3759777804127914790}
   - component: {fileID: 9126063170123430385}
   - component: {fileID: 3694815407870691900}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
