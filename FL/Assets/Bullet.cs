@@ -9,6 +9,10 @@ public class Bullet : MonoBehaviour
     public float damage = 25f;
     public float lifeTime = 5f;
 
+    [Header("Headshot Settings")]
+    public float headshotMultiplier = 3f;
+    public string headTag = "Head";
+
     [Header("Aim Settings")]
     public Camera playerCamera;
     public float aimDistance = 200f;
@@ -26,8 +30,7 @@ public class Bullet : MonoBehaviour
         if (playerCamera != null)
         {
             Ray ray = playerCamera.ViewportPointToRay(
-                new Vector3(0.5f, 0.5f, 0f)
-            );
+                new Vector3(0.5f, 0.5f, 0f));
 
             Vector3 targetPoint;
 
@@ -55,19 +58,39 @@ public class Bullet : MonoBehaviour
         if (Physics.Raycast(transform.position, direction,
             out RaycastHit hit, distance))
         {
-            CarlBot bot = hit.collider.GetComponentInParent<CarlBot>();
+            float finalDamage = damage;
 
-            if (bot != null)
+            // Check for headshot
+            if (hit.collider.CompareTag(headTag))
             {
-                bot.TakeDamage(damage);
+                finalDamage *= headshotMultiplier;
+            }
+
+            // SallyBot
+            SallyBot sally = hit.collider.GetComponentInParent<SallyBot>();
+
+            if (sally != null)
+            {
+                sally.TakeDamage(finalDamage);
             }
             else
             {
-                TargetHealth health =
-                    hit.collider.GetComponentInParent<TargetHealth>();
+                // CarlBot
+                CarlBot carl = hit.collider.GetComponentInParent<CarlBot>();
 
-                if (health != null)
-                    health.TakeDamage(damage);
+                if (carl != null)
+                {
+                    carl.TakeDamage(finalDamage);
+                }
+                else
+                {
+                    // Other targets
+                    TargetHealth health =
+                        hit.collider.GetComponentInParent<TargetHealth>();
+
+                    if (health != null)
+                        health.TakeDamage(finalDamage);
+                }
             }
 
             Destroy(gameObject);
@@ -77,8 +100,6 @@ public class Bullet : MonoBehaviour
         transform.position += direction * distance;
 
         if (Vector3.Distance(startPosition, transform.position) >= maxRange)
-        {
             Destroy(gameObject);
-        }
     }
 }

@@ -17,7 +17,25 @@ public class GunController : MonoBehaviour
 
     [Header("Accuracy")]
     public float spread = 0.3f;
+    public float aimSpread = 0.05f;
     public bool useSpread = true;
+
+    [Header("Aiming")]
+    public Transform gunTransform;
+    public Vector3 aimPosition = new Vector3(0f, -0.1f, 0.3f);
+    public Vector3 aimRotation = Vector3.zero;
+    public float aimSpeed = 12f;
+
+    public float normalFOV = 60f;
+    public float aimFOV = 45f;
+    public float fovSpeed = 10f;
+
+    private Vector3 originalPosition;
+    private Quaternion originalRotation;
+
+    private float nextFireTime;
+    private bool isReloading;
+    private bool isAiming;
 
     [Header("Bullet Casings")]
     public GameObject casingPrefab;
@@ -33,22 +51,72 @@ public class GunController : MonoBehaviour
     [Header("Debug")]
     public bool showAimLine = true;
 
-    private float nextFireTime;
-    private bool isReloading;
-
     void Start()
     {
         currentAmmo = magazineSize;
 
         if (playerCamera == null)
             playerCamera = Camera.main;
+
+        if (gunTransform != null)
+        {
+            originalPosition = gunTransform.localPosition;
+            originalRotation = gunTransform.localRotation;
+        }
+
+        if (playerCamera != null)
+            normalFOV = playerCamera.fieldOfView;
     }
 
     void Update()
     {
+        // AIMING
+        isAiming = Input.GetMouseButton(1);
+
+        if (gunTransform != null)
+        {
+            Vector3 targetPosition = isAiming
+                ? aimPosition : originalPosition;
+
+            Quaternion targetRotation = isAiming
+                ? Quaternion.Euler(aimRotation) : originalRotation;
+
+            gunTransform.localPosition = Vector3.Lerp(
+                gunTransform.localPosition,
+                targetPosition,
+                aimSpeed * Time.deltaTime
+            );
+
+            gunTransform.localRotation = Quaternion.Slerp(
+                gunTransform.localRotation,
+                targetRotation,
+                aimSpeed * Time.deltaTime
+            );
+        }
+
+        // CAMERA FOV
+        if (playerCamera != null)
+        {
+            float targetFOV = isAiming ? aimFOV : normalFOV;
+
+            playerCamera.fieldOfView = Mathf.Lerp(
+                playerCamera.fieldOfView,
+                targetFOV,
+                fovSpeed * Time.deltaTime
+            );
+        }
+
+        // RELOADING
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            if (!isReloading && currentAmmo < magazineSize)
+                StartCoroutine(Reload());
+        }
+
         if (isReloading)
             return;
 
+        // SHOOTING
         if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
         {
             if (currentAmmo > 0)
@@ -61,31 +129,23 @@ public class GunController : MonoBehaviour
                 StartCoroutine(Reload());
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            if (currentAmmo < magazineSize)
-                StartCoroutine(Reload());
-        }
     }
 
     void Shoot()
     {
-        if (playerCamera == null || bulletSpawnPoint == null)
+        if (playerCamera == null || bulletSpawnPoint == null || bulletPrefab == null)
             return;
 
         currentAmmo--;
 
         EjectCasing();
 
-        // Get the exact center of the screen.
         Ray aimRay = playerCamera.ViewportPointToRay(
             new Vector3(0.5f, 0.5f, 0f)
         );
 
         Vector3 targetPoint;
 
-        // Find what the camera is aiming at.
         if (Physics.Raycast(
             aimRay,
             out RaycastHit cameraHit,
@@ -100,27 +160,30 @@ public class GunController : MonoBehaviour
             targetPoint = aimRay.origin + aimRay.direction * maxRange;
         }
 
-        // Calculate direction from the actual gun barrel.
         Vector3 shootDirection =
             (targetPoint - bulletSpawnPoint.position).normalized;
 
-        // Apply small bullet spread.
-        if (useSpread && spread > 0f)
+        // DIFFERENT SPREAD WHILE AIMING
+        float currentSpread = isAiming ? aimSpread : spread;
+
+        if (useSpread && currentSpread > 0f)
         {
-            Vector2 randomSpread = Random.insideUnitCircle * spread;
+            Vector2 randomSpread =
+                Random.insideUnitCircle * currentSpread;
 
             shootDirection = Quaternion.AngleAxis(
-                randomSpread.x, playerCamera.transform.up
+                randomSpread.x,
+                playerCamera.transform.up
             ) * shootDirection;
 
             shootDirection = Quaternion.AngleAxis(
-                -randomSpread.y, playerCamera.transform.right
+                -randomSpread.y,
+                playerCamera.transform.right
             ) * shootDirection;
 
             shootDirection.Normalize();
         }
 
-        // Spawn bullet facing the target.
         GameObject bullet = Instantiate(
             bulletPrefab,
             bulletSpawnPoint.position,
@@ -130,9 +193,7 @@ public class GunController : MonoBehaviour
         Bullet bulletScript = bullet.GetComponent<Bullet>();
 
         if (bulletScript != null)
-        {
             bulletScript.maxRange = maxRange;
-        }
 
         if (showAimLine)
         {
@@ -180,7 +241,7 @@ public class GunController : MonoBehaviour
 
     IEnumerator Reload()
     {
-        if (isReloading)
+        if (isReloading || currentAmmo >= magazineSize)
             yield break;
 
         isReloading = true;
