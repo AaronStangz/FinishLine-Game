@@ -69,6 +69,17 @@ public class PlayerInteract : MonoBehaviour
             {
                 VM.SpawnRandomItem();
             }
+
+            NormalDoorManager ND =
+    hit.collider.GetComponent<NormalDoorManager>();
+
+            if (ND != null)
+            {
+                //ND.ToggleDoor();
+
+            }
+
+
         }
 
 
