@@ -2311,7 +2311,7 @@ MonoBehaviour:
   instantDeathTag: InstantDeath
   detectionRange: 25
   losePlayerRange: 40
-  fieldOfView: 120
+  fieldOfView: 300
   obstacleMask:
     serializedVersion: 2
     m_Bits: 16
