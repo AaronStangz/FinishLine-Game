@@ -8,6 +8,7 @@ TagManager:
   - Loot
   - Head
   - RespawnZone
+  - InstantDeath
   layers:
   - Default
   - TransparentFX

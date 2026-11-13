@@ -317,10 +317,10 @@ GameObject:
   - component: {fileID: 3626730470097780541}
   - component: {fileID: 813463578871572871}
   - component: {fileID: 4573859784346744696}
-  - component: {fileID: 5294378722619291228}
   - component: {fileID: 5726331975611625335}
   - component: {fileID: 3060980288519693151}
   - component: {fileID: 5072067216756684014}
+  - component: {fileID: 8343437253299716794}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Loot
@@ -401,29 +401,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &5294378722619291228
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7303464174827551268}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!54 &5726331975611625335
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -481,6 +458,27 @@ MonoBehaviour:
   interactionDistance: 3
   eatKey: 101
   player: {fileID: 0}
+--- !u!65 &8343437253299716794
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7303464174827551268}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4, y: 4, z: 4}
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
 --- !u!1 &8090117199029551382
 GameObject:
   m_ObjectHideFlags: 0

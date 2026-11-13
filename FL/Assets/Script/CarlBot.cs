@@ -53,6 +53,9 @@ public class CarlBot : MonoBehaviour
     public bool destroyOnDeath = true;
     public float destroyDelay = 10f;
 
+    [Header("Instant Death Hitbox")]
+    public string instantDeathTag = "InstantDeath";
+
     [Header("Detection")]
     public float detectionRange = 25f;
     public float losePlayerRange = 40f;
@@ -266,6 +269,17 @@ public class CarlBot : MonoBehaviour
 
         if (healthBarObject != null)
             healthBarObject.SetActive(currentHealth > 0);
+    }
+
+    public void HitBodyPart(Collider hitPart)
+    {
+        if (isDead)
+            return;
+
+        if (hitPart.CompareTag(instantDeathTag))
+        {
+            Die();
+        }
     }
 
     void Die()

@@ -54,7 +54,7 @@ public class PlayerInteract : MonoBehaviour
                 if (mainManager != null && IM.Cash > 75)
                 {
                     IM.Cash -= 75;
-                    hand[0].gameObject.SetActive(true);
+                    hand[1].gameObject.SetActive(true);
                     handBar[0].gameObject.SetActive(true);
                     Transform parent = NoteParent != null ? NoteParent : transform;
                     Instantiate(Note[0], NoteParent);
@@ -68,15 +68,6 @@ public class PlayerInteract : MonoBehaviour
             if (VM != null)
             {
                 VM.SpawnRandomItem();
-            }
-
-            NormalDoorManager ND =
-    hit.collider.GetComponent<NormalDoorManager>();
-
-            if (ND != null)
-            {
-                //ND.ToggleDoor();
-
             }
 
 

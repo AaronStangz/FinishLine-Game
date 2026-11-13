@@ -76,20 +76,16 @@ public class Bullet : MonoBehaviour
             else
             {
                 // CarlBot
-                CarlBot carl = hit.collider.GetComponentInParent<CarlBot>();
+                CarlBot bot = hit.collider.GetComponentInParent<CarlBot>();
 
-                if (carl != null)
+                if (bot != null)
                 {
-                    carl.TakeDamage(finalDamage);
-                }
-                else
-                {
-                    // Other targets
-                    TargetHealth health =
-                        hit.collider.GetComponentInParent<TargetHealth>();
+                    bot.HitBodyPart(hit.collider);
 
-                    if (health != null)
-                        health.TakeDamage(finalDamage);
+                    if (!hit.collider.CompareTag("InstantDeath"))
+                    {
+                        bot.TakeDamage(25f);
+                    }
                 }
             }
 

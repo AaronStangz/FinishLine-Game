@@ -1,6 +1,7 @@
-using UnityEngine.UI;
+
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 using System.Collections;
 
 public class SallyBot : MonoBehaviour
@@ -51,6 +52,13 @@ public class SallyBot : MonoBehaviour
     public float wanderSpeed = 2f;
     public float chaseSpeed = 5f;
 
+    [Header("Death Physics")]
+    public float destroyDelay = 5f;
+    public float deathForwardForce = 15f;
+    public float deathUpForce = 12f;
+    public float deathTorque = 15f;
+
+
     [Header("Current State")]
     public AIState currentState = AIState.Wander;
 
@@ -65,7 +73,9 @@ public class SallyBot : MonoBehaviour
         if (agent == null)
             agent = GetComponent<NavMeshAgent>();
 
-        agent.speed = wanderSpeed;
+        if (agent != null)
+            agent.speed = wanderSpeed;
+
         PickWanderPosition();
 
         currentHealth = maxHealth;
@@ -77,14 +87,12 @@ public class SallyBot : MonoBehaviour
         }
 
         if (healthBarObject != null && hideHealthBarWhenFull)
-        {
             healthBarObject.SetActive(false);
-        }
     }
 
     void Update()
     {
-        if (player == null || agent == null)
+        if (isDead || player == null || agent == null)
             return;
 
         float distance = Vector3.Distance(
@@ -150,11 +158,9 @@ public class SallyBot : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
 
-        // Show health bar when damaged.
         if (healthBarObject != null)
             healthBarObject.SetActive(true);
 
-        // Update slider.
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
@@ -162,10 +168,9 @@ public class SallyBot : MonoBehaviour
         }
 
         if (currentHealth <= 0f)
-        {
             Die();
-        }
     }
+
 
     void Die()
     {
@@ -173,16 +178,44 @@ public class SallyBot : MonoBehaviour
 
         isDead = true;
 
-        agent.isStopped = true;
-        agent.ResetPath();
-
         StopAllCoroutines();
 
         if (healthBarObject != null)
             healthBarObject.SetActive(false);
 
-        Destroy(gameObject, 2f);
+        if (agent != null)
+        {
+            agent.isStopped = true;
+            agent.ResetPath();
+            agent.enabled = false;
+        }
+
+        Rigidbody rb = GetComponent<Rigidbody>();
+
+        if (rb == null)
+            rb = gameObject.AddComponent<Rigidbody>();
+
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        rb.mass = 20f;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+        // Launch SallyBot forward and into the air.
+        Vector3 launchDirection =
+            (transform.forward * deathForwardForce) +
+            (Vector3.up * deathUpForce);
+
+        rb.AddForce(launchDirection, ForceMode.Impulse);
+
+        // Spin SallyBot through the air.
+        rb.AddTorque(
+            Random.insideUnitSphere * deathTorque,
+            ForceMode.Impulse
+        );
+
+        Destroy(gameObject, destroyDelay);
     }
+
 
     void Wander()
     {
@@ -211,7 +244,8 @@ public class SallyBot : MonoBehaviour
             randomDirection, out NavMeshHit hit,
             wanderRadius, NavMesh.AllAreas))
         {
-            agent.SetDestination(hit.position);
+            if (agent != null && agent.enabled)
+                agent.SetDestination(hit.position);
         }
     }
 
@@ -239,7 +273,6 @@ public class SallyBot : MonoBehaviour
 
     void AttackPlayer(float distance)
     {
-        // Keep moving toward the player if not close enough.
         agent.isStopped = false;
         agent.speed = chaseSpeed;
 
@@ -251,7 +284,6 @@ public class SallyBot : MonoBehaviour
 
         agent.ResetPath();
 
-        // Face the player.
         Vector3 direction = player.position - transform.position;
         direction.y = 0f;
 
@@ -269,22 +301,21 @@ public class SallyBot : MonoBehaviour
         attackTimer += Time.deltaTime;
 
         if (!attacking && attackTimer >= attackCooldown)
-        {
             StartCoroutine(PerformAttack());
-        }
     }
 
     IEnumerator PerformAttack()
     {
         attacking = true;
 
-        // Attack animation / hit delay.
         yield return new WaitForSeconds(attackDuration);
+
+        if (isDead)
+            yield break;
 
         float distance = Vector3.Distance(
             transform.position, player.position);
 
-        // Only deal damage if still close enough.
         if (distance <= attackRange + 0.5f)
         {
             PlayerHealthHunger health =
@@ -294,15 +325,12 @@ public class SallyBot : MonoBehaviour
                 health = player.GetComponentInParent<PlayerHealthHunger>();
 
             if (health != null)
-            {
                 health.TakeDamage(attackDamage);
-            }
         }
 
         attacking = false;
         attackTimer = 0f;
 
-        // Run away after attacking.
         currentState = AIState.RunAway;
         runTimer = 0f;
     }
@@ -328,8 +356,6 @@ public class SallyBot : MonoBehaviour
         }
 
         if (runTimer >= runAwayDuration)
-        {
             currentState = AIState.Chase;
-        }
     }
 }
